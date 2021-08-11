@@ -37,15 +37,17 @@ class Alpaca:
         return self.tickers
 
     def get_dataframe(self):
+        end_date = date.today() - pd.Timedelta(days=1)
+        start_date = (end_date - pd.Timedelta(weeks=52*(self.endpoint_years)))
         self.df_portfolio = self.alpaca.get_barset(
         self.tickers,
         self.timeframe,
-        start = pd.Timestamp(date.today(), tz="America/New_York").isoformat(),
-        end = pd.Timestamp((date.today() - pd.Timedelta(weeks=52*(self.endpoint_years))), tz="America/New_York").isoformat()
+        start = pd.Timestamp(start_date, tz="America/New_York").isoformat(),
+        end = pd.Timestamp(end_date, tz="America/New_York").isoformat()
         ).df
         
         print(type(self.df_portfolio))
-        print(self.df_portfolio.dtypes())
+        print(self.df_portfolio)
         return self.df_portfolio
 
     def clean_dataframe(self):
