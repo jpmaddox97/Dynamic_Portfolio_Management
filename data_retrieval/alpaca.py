@@ -33,7 +33,9 @@ class Alpaca:
         for ticker in self.ticker_list:
             ticker = ticker.upper()
             self.tickers.append(ticker)
-        print(self.tickers)
+
+        # print(self.tickers)
+
         return self.tickers
 
     def get_dataframe(self):
@@ -43,29 +45,43 @@ class Alpaca:
         self.tickers,
         self.timeframe,
         start = pd.Timestamp(start_date, tz="America/New_York").isoformat(),
-        end = pd.Timestamp(end_date, tz="America/New_York").isoformat()
+        end = pd.Timestamp(end_date, tz="America/New_York").isoformat(),
+        limit=1000
         ).df
         
-        print(type(self.df_portfolio))
-        print(self.df_portfolio)
+        # print(type(self.df_portfolio))
+        # print(self.df_portfolio)
+
         return self.df_portfolio
 
     def clean_dataframe(self):
         self.df_portfolio = self.df_portfolio.dropna()
         self.df_portfolio.index = self.df_portfolio.index.date
-        clean_tickers = []
+        clean_ticker_df = []
         columns = []
 
         for ticker in self.tickers:
-            ticker = self.df_portfolio[ticker][['close', 'volume']]
+
             close = f"{ticker}_close"
             volume = f"{ticker}_volume"
-            clean_tickers.append(ticker)
+
             columns.append(close)
             columns.append(volume)
 
-        self.clean_df = pd.concat(clean_tickers, axis='columns', join='inner')
+            ticker = self.df_portfolio[ticker][['close', 'volume']]
+            
+            clean_ticker_df.append(ticker)
+            
+
+        # for df in clean_ticker_df:
+        #     print(df)
+
+        self.clean_df = pd.concat(clean_ticker_df, axis='columns', join='inner')
         self.clean_df.columns = columns
+
+        # print(columns)
+        # print(self.clean_df)
+
         return self.clean_df
 
 #    def sample_df(self):
@@ -82,11 +98,12 @@ class Alpaca:
 
         self.get_dataframe()
 
-        # self.clean_dataframe()
+        self.clean_dataframe()
 
     #    self.sample_df()
+        print(self.clean_df)
         
-        # return self.clean_df
+        return self.clean_df
 
 tickers = ['aapl', 'msft', 'csco']
 alpaca_api = "ALPACA_API_KEY_ENV"
