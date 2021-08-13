@@ -1,15 +1,9 @@
 import fire
 import questionary
 
-# What’s your risk tolerance? Low, moderate, high
-# Of the following indexes, select the index that best reflects your current portfolio?
-# User selects from a few options to benchmark their crypto returns against
-# What is the time horizon of your investment?
-# Are you trying to accomplish a dollar goal or percentage return goal?
-# CYC know your client due diligence; please list assets you are not allowed to invest in
-# How much would you like to invest with us?
 
-# cyc = questionary.select("")
+
+# Still need a cyc function
 
 def get_user_risk_tolerance():
     """
