@@ -1,4 +1,4 @@
-import pprint, os
+import os
 from dotenv import load_dotenv
 from binance.client import Client
 import pandas as pd
@@ -7,7 +7,13 @@ import time
 
 
 class Binance():
-
+    """
+    Gets historical crypto data from the binance API
+    Inputs:
+        Symbol as shown on exchanges, years(int) of historical data to get the
+    Outputs:
+        A dataframe with date as index, close and volume data
+    """
     def __init__(self, symbol, years):
         self.symbol = symbol
         self.years = int(years)
