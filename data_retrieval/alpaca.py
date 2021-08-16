@@ -118,7 +118,7 @@ class Alpaca:
         
         return self.clean_df
 
-tickers = ['aapl', 'msft', 'csco']
+tickers = ['CMC200']
 alpaca_api = "ALPACA_API_KEY_ENV"
 alpaca_secret_api = "ALPACA_SECRET_KEY_ENV"
 timeframe = "1D"
