@@ -6,6 +6,7 @@ from datetime import date
 
 class Alpaca:
     """
+    ///Only for standard stocks and bonds///
     A class that accepts inputs for tickers, the api key, 
     it's secret key, a time frame as well as the amount of 
     years of historical data requested. The object then 
@@ -20,12 +21,12 @@ class Alpaca:
     Output:
         Cleaned dataframe that stores the close and volume values for each stock
     """
-    def __init__(self, ticker_list, alpaca_api, alpaca_secret_key, timeframe, endpoint_years):
+    def __init__(self, ticker_list, timeframe, endpoint_years, alpaca_api=None, alpaca_secret_key=None):
         # Init class variables and set them equal to inputs
 
         self.ticker_list = ticker_list
-        self.alpaca_api = alpaca_api
-        self.alpaca_secret_key = alpaca_secret_key
+        self.alpaca_api = str(alpaca_api)
+        self.alpaca_secret_key = str(alpaca_secret_key)
         self.timeframe = timeframe
         self.endpoint_years = endpoint_years
 
@@ -33,8 +34,13 @@ class Alpaca:
         # Load environment variables to make api calls
 
         load_dotenv()
-        self.alpaca_api = os.getenv(self.alpaca_api)
-        self.alpaca_secret_key = os.getenv(self.alpaca_secret_key)
+
+        if self.alpaca_api and self.alpaca_secret_key:
+            self.alpaca_api = os.getenv(self.alpaca_api)
+            self.alpaca_secret_key = os.getenv(self.alpaca_secret_key)
+        else:
+            self.alpaca_api = os.getenv("ALPACA_API_KEY_ENV")
+            self.alpaca_secret_key = os.getenv("ALPACA_SECRET_KEY_ENV")
 
 
     def create_api_call(self):
@@ -118,7 +124,7 @@ class Alpaca:
         
         return self.clean_df
 
-tickers = ['CMC200']
+tickers = ['aapl']
 alpaca_api = "ALPACA_API_KEY_ENV"
 alpaca_secret_api = "ALPACA_SECRET_KEY_ENV"
 timeframe = "1D"
@@ -126,5 +132,6 @@ years = 3
 
 
 if __name__ == '__main__':
-    object = Alpaca(tickers, alpaca_api, alpaca_secret_api, timeframe, years)
+    object = Alpaca(tickers, timeframe, years, alpaca_api, alpaca_secret_api)
+    # object = Alpaca(tickers, timeframe, years)
     object.run()

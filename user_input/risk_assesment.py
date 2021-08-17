@@ -13,7 +13,7 @@ def get_user_risk_tolerance():
 
     indexes = questionary.select("Of the following indexes, select the index that best reflects your current portfolio.", choices=["NASDAQ", "DOW", "S&P 500"]).ask()
 
-    crypto_benchmark = questionary.select("Would you like to benchmark your crypto against an index, a specific crypto, or a composite of cryptos?", choices=["Index", "Crypto", "Crypto Composite"]).ask()
+    # crypto_benchmark = questionary.select("Would you like to benchmark your crypto against an index, a specific crypto, or a composite of cryptos?", choices=["Index", "Crypto", "Crypto Composite"]).ask()
 
     goals = questionary.select("Would you like to acomplish a dollar goal or a percentage return goal?", choices=["Dollar Goal", "Percentage Goal"]).ask()
 
@@ -21,7 +21,6 @@ def get_user_risk_tolerance():
 
     user_dictionary = {"risk tolerance": risk_tolerance,
                         "index": indexes,
-                        "Crypto Benchmark": crypto_benchmark,
                         "Investment Goals": goals,
                         "Investment Amount": invest_amount,}
 

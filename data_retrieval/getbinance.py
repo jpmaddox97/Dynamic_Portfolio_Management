@@ -52,3 +52,7 @@ class Binance():
         df.index = df.index.date
 
         return df
+
+object = Binance('ada', 3)
+df = object.run()
+print(df)
