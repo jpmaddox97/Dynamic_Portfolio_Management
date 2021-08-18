@@ -23,7 +23,8 @@ class Functions():
     def daily_returns(self):
         # Make a daily returns column
         # Add error handling for instances where column name is incorrect
-        self.dataframe['daily_returns'] = self.dataframe[self.column_name].pct_change().dropna()
+        self.dataframe['daily_returns'] = self.dataframe[self.column_name].pct_change()
+        self.dataframe.dropna(inplace=True)
         return self.dataframe
 
     def cumulative_returns(self):

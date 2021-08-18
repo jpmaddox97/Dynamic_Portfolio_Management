@@ -22,4 +22,3 @@ def cmc200(years):
 
     return df
 
-print(cmc200(3))
