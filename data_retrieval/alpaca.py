@@ -120,7 +120,7 @@ class Alpaca:
 
         self.clean_dataframe()
 
-        print(self.clean_df)
+        # print(self.clean_df)
         
         return self.clean_df
 

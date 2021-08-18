@@ -164,8 +164,19 @@ portfolio_value = sum(portfolio_value)
 
 print(f"The current value of your stock portfolio is ${portfolio_value}")
 
-cmc = crypto_market.cmc200()
+cmc = crypto_market.cmc200(1)
+cmc.columns = ['CMC_close']
 
-alpaca_call = alpaca.Alpaca('snp', '1D', 1, alpaca_api, alpaca_secret_api)
+alpaca_api = "ALPACA_API_KEY_ENV"
+alpaca_secret_api = "ALPACA_SECRET_KEY_ENV"
+alpaca_call = alpaca.Alpaca(['snp'], '1D', 1, alpaca_api, alpaca_secret_api)
 snp_index = alpaca_call.run()
+snp_index.drop(columns=['SNP_volume'], inplace=True)
+
+index = pd.concat([snp_index, cmc], axis=1)
+index.dropna(inplace=True)
+
+indexes_plot = index.hvplot.line(title='CMC200 and S&P500 Overlayed')
+
+hvplot.show(indexes_plot)
 
