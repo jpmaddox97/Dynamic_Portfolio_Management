@@ -4,6 +4,8 @@ from data_retrieval import getbinance
 from functions_graphs import functions
 from user_input import risk_assesment
 import pandas as pd
+import hvplot
+
 print("----------IGNORE ABOVE----------")
 # permutations = ra.get_user_risk_tolerance()
 
@@ -85,17 +87,20 @@ user_info = risk_assesment.get_user_risk_tolerance_port()
 print("----------User Info----------")
 for i, v in user_info.items():
     print(f"{i}: {v}")
-
+print("\n")
 dictionary = get_crypto_dict()
 crypto_std = get_std(dictionary)
 sorted_std = sort_crypto_std(crypto_std)
 
+print("----------Crypto Risk----------")
 for t,v in sorted_std['low'].items():
     print(f"Low Risk Cryptos - {t}:{v}")
 print("----------")
+print("\n")
 for t,v in sorted_std['med'].items():
     print(f"Medium Risk Cryptos - {t}:{v}")  
 print("----------")
+print("\n")
 for t,v in sorted_std['high'].items():
     print(f"High Risk Cryptos - {t}:{v}")
 
@@ -115,7 +120,52 @@ elif user_info['risk tolerance'] == 'Low':
 crypto_risk_allotment = i_amount * 0.7
 price_per_crypto = crypto_risk_allotment / len(len_crypto)
 
+print("----------Order Book----------")
 for ticker in len_crypto:
     print(f"Purchase ${price_per_crypto} of {ticker}")
-    
+
 print(f"This should equal 70%, ${crypto_risk_allotment}, of your stated initial investment amount of {user_info['Investment Amount']}")
+print("\n")
+snp_crypto = ['BTC', 'ETH', 'LTC']
+
+crypto_index_allotment = i_amount * 0.3
+price_per_crypto_i = crypto_index_allotment / len(snp_crypto)
+
+for ticker in snp_crypto:
+    print(f"Purchase ${price_per_crypto_i} of {ticker}")
+
+print(f"This should equal 30%, ${crypto_index_allotment}, of your stated initial investment amount of {user_info['Investment Amount']}")
+
+tickers = []
+for ticker, shares in user_info['Stock Portfolio'].items():
+    tickers.append(ticker)
+
+alpaca_api = "ALPACA_API_KEY_ENV"
+alpaca_secret_api = "ALPACA_SECRET_KEY_ENV"
+
+alpaca_call = alpaca.Alpaca(tickers, '1D', 1, alpaca_api, alpaca_secret_api)
+stocks_df = alpaca_call.run()
+
+close_values = []
+for ticker in tickers:
+    close = f"{ticker.upper()}_close"
+    close_v = stocks_df[close][-1]
+    print(f"{ticker} closed at {close_v}")
+    close_values.append(close_v)
+
+print("----------Stock Portfolio Value----------")
+portfolio_value = []
+for value in close_values:
+    for ticker, share in user_info['Stock Portfolio'].items():
+        ticker = float(value) * float(share)
+        portfolio_value.append(ticker)
+
+portfolio_value = sum(portfolio_value)
+
+print(f"The current value of your stock portfolio is ${portfolio_value}")
+
+cmc = crypto_market.cmc200()
+
+alpaca_call = alpaca.Alpaca('snp', '1D', 1, alpaca_api, alpaca_secret_api)
+snp_index = alpaca_call.run()
+

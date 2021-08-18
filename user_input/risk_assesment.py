@@ -15,15 +15,17 @@ def get_user_risk_tolerance_port():
 
     # crypto_benchmark = questionary.select("Would you like to benchmark your crypto against an index, a specific crypto, or a composite of cryptos?", choices=["Index", "Crypto", "Crypto Composite"]).ask()
 
-    goals = questionary.select("Would you like to acomplish a dollar goal or a percentage return goal?", choices=["Dollar Goal", "Percentage Goal"]).ask()
+    goals = questionary.text("Would you like to acomplish a dollar goal or a percentage return goal? (Start with a '$' if dollar goal and with '%' if percent goal").ask()
 
     invest_amount = int(questionary.text("How much would you like to invest?").ask())
 
-    stock_portfolio = []
+    stock_portfolio = {}
     adding = True
     while adding:
-        stock_portfolio = questionary.text("Enter the symbols of each stock in your portfolio: ").ask()
+        sp = questionary.text("Enter stock from stock portfolio: ").ask()
+        sw = int(questionary.text("Enter Share Amount: ").ask())
         cont = questionary.confirm("Continue?").ask()
+        stock_portfolio[sp] = sw
         if cont == False:
             adding = False
 
