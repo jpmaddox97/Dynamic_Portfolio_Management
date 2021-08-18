@@ -84,7 +84,7 @@ def sort_crypto_std(crypto_std):
 user_info = risk_assesment.get_user_risk_tolerance_port()
 print("----------User Info----------")
 for i, v in user_info.items():
-    print(f"{i}:{v}")
+    print(f"{i}: {v}")
 
 dictionary = get_crypto_dict()
 crypto_std = get_std(dictionary)
@@ -99,3 +99,23 @@ print("----------")
 for t,v in sorted_std['high'].items():
     print(f"High Risk Cryptos - {t}:{v}")
 
+i_amount = user_info["Investment Amount"]
+
+len_crypto = []
+if user_info['risk tolerance'] == 'High':
+    for t, v in sorted_std['high'].items():
+        len_crypto.append(t)
+elif user_info['risk tolerance'] == 'Medium':
+    for t, v in sorted_std['med'].items():
+        len_crypto.append(t)
+elif user_info['risk tolerance'] == 'Low':
+    for t, v in sorted_std['low'].items():
+        len_crypto.append(t)
+
+crypto_risk_allotment = i_amount * 0.7
+price_per_crypto = crypto_risk_allotment / len(len_crypto)
+
+for ticker in len_crypto:
+    print(f"Purchase ${price_per_crypto} of {ticker}")
+    
+print(f"This should equal 70%, ${crypto_risk_allotment}, of your stated initial investment amount of {user_info['Investment Amount']}")

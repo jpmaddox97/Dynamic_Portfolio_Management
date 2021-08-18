@@ -24,7 +24,7 @@ def get_user_risk_tolerance_port():
     while adding:
         stock_portfolio = questionary.text("Enter the symbols of each stock in your portfolio: ").ask()
         cont = questionary.confirm("Continue?").ask()
-        if cont == "No":
+        if cont == False:
             adding = False
 
     user_dictionary = {"risk tolerance": risk_tolerance,
