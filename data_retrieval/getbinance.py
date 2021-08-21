@@ -52,6 +52,3 @@ def Binance(symbol, years):
     df.index = df.index.date
 
     return df
-
-object = Binance('ada', 3)
-print(object)
