@@ -5,16 +5,13 @@ from data_retrieval import sp500_index
 
 from functions_graphs import functions
 from user_input import risk_assesment
-import MCForecastTools as mc
+from data_retrieval import MCForecastTools as mc
 
 from collections import Counter
 
 import pandas as pd
 import hvplot.pandas
 import numpy as np
-
-# print("----------IGNORE ABOVE----------")
-# Creating Order Book
 
 # Assign a weight of 70%
 # Crypto list = ADA, BNB, BTC, DOT, ETH, LINK, LTC, VET, XLM, XRP
@@ -32,9 +29,11 @@ import numpy as np
 
 # Functions for program operations
 def get_crypto_dict():
-    # Returns a dictionary with ticker as index and its dataframe as a value
+    """Returns a dictionary with ticker as index and its dataframe as a value"""
+
     cryptos = ['ADA', 'BNB', 'BTC', 'DOT', 'ETH', 'LINK', 'LTC', 'VET', 'XLM', 'XRP']
     crypto_dict = {}
+
     for ticker in cryptos:
         df = getbinance.Binance(ticker, 3)
         df = pd.DataFrame(df)
@@ -43,21 +42,23 @@ def get_crypto_dict():
     return crypto_dict
 
 def get_std(crypto_dfs):
-    # Returns a dictionary of all crypto stds
+    """Returns a dictionary of all crypto stds"""
+
     cryptos = ['ADA', 'BNB', 'BTC', 'DOT', 'ETH', 'LINK', 'LTC', 'VET', 'XLM', 'XRP']
     crypto_std = {}
+
     for ticker in cryptos:
         df = crypto_dfs[ticker]
         c_name = f"{ticker}USDT_Close"
         funct = functions.Functions(df, c_name)
         daily_returns = funct.daily_returns()
         daily_returns.dropna(inplace=True)
-
         crypto_std[ticker] = funct.standard_deviation()
+
     return crypto_std
 
 def get_sharpe(crypto_dfs):
-    # Set a list of all the cryptos
+    """Set a list of all the cryptos"""
     cryptos = ['ADA', 'BNB', 'BTC', 'DOT', 'ETH', 'LINK', 'LTC', 'VET', 'XLM', 'XRP']
     crypto_sharpe = {}
 
@@ -66,13 +67,13 @@ def get_sharpe(crypto_dfs):
         df = crypto_dfs[ticker]
         c_name = f"{ticker}USDT_Close"
         funct = functions.Functions(df, c_name)
-
         crypto_sharpe[ticker] = funct.sharpe_ratio()
     
     return crypto_sharpe
 
 def sort_crypto_std(crypto_std):
-    # Returns a dictionary with all crypto std's sorted from low to high risk
+    """Returns a dictionary with all crypto std's sorted from low to high risk"""
+
     high_risk = {}
     med_risk = {}
     low_risk = {}
@@ -85,9 +86,12 @@ def sort_crypto_std(crypto_std):
             med_risk[ticker] = std
         elif float(std) > 0.073:
             high_risk[ticker] = std
+
     return {"low":low_risk, "med":med_risk, "high":high_risk}
 
 def sort_crypto_sharpe(crypto_sharpe):
+    """Returns a dictionary with all crypto sharpe's sorted from low to high risk"""
+
     high_risk = {}
     med_risk = {}
     low_risk = {}
@@ -120,8 +124,9 @@ print("\n")
 # And calls the sort function to get
 dictionary = get_crypto_dict()
 sorted_std = sort_crypto_std(get_std(dictionary))
-weights_ = 
-crypto_sharpe = get_sharpe(dictionary)
+
+weights_ = [] # Will be used in the future to automate weight calculation
+crypto_sharpe = get_sharpe(dictionary) 
 
 # Until the sharpe ratio function this keeps the code running
 try:
@@ -149,6 +154,7 @@ i_amount = user_info["Investment Amount"]
 
 # takes input from the user and selects the appropriate bin
 len_crypto = []
+
 # Make high bin
 if user_info['risk tolerance'] == 'High':
     for t, v in sorted_std['high'].items():
@@ -286,40 +292,54 @@ index_dr_30_plot = sp_cmc.hvplot.line(title='CMC200 and S&P500 Overlayed - 30 Da
 sp_cmc_avg = index_cm.mean(axis=1)
 sp_cmc_avg_30 = sp_cmc_avg.rolling(window=30).mean()
 
-# Aggregate plotted
-sp_cmc_avg_30_plot = sp_cmc_avg_30.hvplot.line(title='CMC200 and S&P500 Aggregate - 30 Day')
-sp_cmc_avg_plot = sp_cmc_avg.hvplot.line(title='CMC200 and S&P500 Aggregate')
-
+# Create a list of dataframes to concat stocks with cryptos
 list_df = []
+
+# Store stock dfs
 for t, df in stock_port.items():
     df = pd.DataFrame(df)
     list_df.append(df)
     # print(df.head())
 
+# Add crypto dfs
 for t, df in dictionary.items():
     df = pd.DataFrame(df)
     df = df[f"{t}USDT_Close"]
     list_df.append(df)
 
+# Get new joined dataframe
 port_closes = pd.concat(list_df, axis=1, join='inner')
 
+# Drop NaN values
 port_daily_returns = port_closes.pct_change().dropna()
 
+# Get cumulative returns
 port_cum_returns = (1 + port_daily_returns).cumprod()
 
+# Get rolling cumulative returns
 port_cum_30 = port_cum_returns.rolling(window=30).mean()
+
+# Average the returns across columns to get average total returns
 combined_cum_returns = port_cum_returns.mean(axis=1)
-combined_cum_returns = combined_cum_returns.T
-combined_cum_returns.columns = ['Portfolio Cumulative Return - 30 Day']
+combined_cum_returns30 = port_cum_30.mean(axis=1)
 
-portfolio_plot = combined_cum_returns.hvplot(title="Total Portfolio Cumulative Returns")
-portfolio_plot_30 = combined_cum_returns.hvplot(title="Total Portfolio Cumulative Returns - 30 Day")
+# Concat portfolio with index to get new dataframe
+index_returns_df = pd.concat([combined_cum_returns, index_cm, sp_cmc_avg], axis=1)
+index_returns_df = index_returns_df.dropna()
+index_returns_df.columns = ['Portfolio Cum. Returns', 'S&P 500', 'CMC200', 'Avg Index']
 
-
-portfolio_index_overlay_avg = portfolio_plot * sp_cmc_avg_plot
-portfolio_index_overlay = portfolio_plot * index_overlay_plot
-port_index_format_plot = portfolio_index_overlay_avg
+# Concat average portfolio with averaged index - 30 day
+index_returns_30_df = pd.concat([combined_cum_returns30, sp_cmc_avg_30], axis=1)
+index_returns_30_df = index_returns_30_df.dropna()
+index_returns_30_df.columns = ['Portfolio Cum. Returns', 'Avg Index']
 
 # montecarlo = mc.MCSimulation(port_cum_returns, weights="", num_simulation=1000, num_trading_days=252)
 
-hvplot.show(portfolio_index_overlay + portfolio_index_overlay_avg)
+# Plot graphs in separate window
+hvplot.show(
+    index_returns_df.hvplot(y=['Portfolio Cum. Returns', 'S&P 500', 'CMC200', 'Avg Index'], 
+    value_label='Cumulative Returns', xlabel='Date', title='Portfolio Returns vs Indexes')
+    +
+    index_returns_30_df.hvplot(y=['Portfolio Cum. Returns', 'Avg Index'], 
+    value_label='Cumulative Returns', xlabel='Date', title='Portfolio Returns vs Average Index - 30 Day')
+)
