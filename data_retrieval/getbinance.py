@@ -23,6 +23,7 @@ def Binance(symbol, years):
     binance_symbol = f"{symbol}USDT"
 
     # Load environment vairables
+    # Set variables to binance api key env files
     load_dotenv()
     binance_api = os.getenv("BINANCE_API")
     binance_secret = os.getenv("BINANCE_SECRET")
@@ -39,15 +40,25 @@ def Binance(symbol, years):
 
     # Create and format dataframe 
     # Returns close and volume with date as index
-    columns = ['date', 'open', 'high', 'low', 'close', 'volume', 'close time', 'quote asset volume', 'number of trades', 'taker buy base asset volume', 'taker buy quote asset volume', 'ignore']
+    columns = ['date', 'open', 'high', 'low', 'close', 'volume', 'close time', 'quote asset volume', 
+    'number of trades', 'taker buy base asset volume', 'taker buy quote asset volume', 'ignore']
     df = pd.DataFrame(candles, columns=columns)
+
     mills = df['date']
     date = pd.Series([datetime.datetime.fromtimestamp(mill/1000) for mill in mills])
+
+    # Combine dataframes and drop columns
     df = pd.concat([date, df], axis=1, join='inner')
-    df = df.drop(columns=['date', 'open', 'high', 'low', 'close time', 'quote asset volume', 'number of trades', 'taker buy base asset volume', 'taker buy quote asset volume', 'ignore'], axis=1)
+    df = df.drop(columns=['date', 'open', 'high', 'low', 'close time', 'quote asset volume', 'number of trades', 
+    'taker buy base asset volume', 'taker buy quote asset volume', 'ignore'], axis=1)
+
+    # Set data type to float
     df['close'] = df['close'].astype(float)
     df['volume'] = df['volume'].astype(float)
+    # Rename columns with ticker values
     df = df.rename(columns={0:'date', 'close':f'{binance_symbol}_Close', 'volume':f'{binance_symbol}_Volume'})
+
+    # Set date index
     df = df.set_index(['date'])
     df.index = df.index.date
 

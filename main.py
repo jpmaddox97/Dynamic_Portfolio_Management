@@ -5,9 +5,12 @@ from data_retrieval import sp500_index
 
 from functions_graphs import functions
 from user_input import risk_assesment
+import MCForecastTools as mc
+
+from collections import Counter
 
 import pandas as pd
-import hvplot
+import hvplot.pandas
 import numpy as np
 
 # print("----------IGNORE ABOVE----------")
@@ -27,6 +30,7 @@ import numpy as np
 # Russel - Smallest cap
 # Pick crypto based of market cap realtion to index
 
+# Functions for program operations
 def get_crypto_dict():
     # Returns a dictionary with ticker as index and its dataframe as a value
     cryptos = ['ADA', 'BNB', 'BTC', 'DOT', 'ETH', 'LINK', 'LTC', 'VET', 'XLM', 'XRP']
@@ -100,9 +104,12 @@ def sort_crypto_sharpe(crypto_sharpe):
 
     return {"low":low_risk, "med":med_risk, "high":high_risk}
 
+
 print("----------Dynamic Portfolio Management - Version 1.0----------")
 
 user_info = risk_assesment.get_user_risk_tolerance_port()
+
+
 print("----------User Info----------")
 # Print user risk assessment dictionary
 for i, v in user_info.items():
@@ -113,18 +120,16 @@ print("\n")
 # And calls the sort function to get
 dictionary = get_crypto_dict()
 sorted_std = sort_crypto_std(get_std(dictionary))
-
+weights_ = 
 crypto_sharpe = get_sharpe(dictionary)
 
 # Until the sharpe ratio function this keeps the code running
 try:
     sorted_sharpe = sort_crypto_sharpe(dictionary)
-except:
-    pass
-try:
     print(sorted_sharpe)
 except:
     pass
+
 
 print("\n")
 print("----------Crypto Risk----------")
@@ -170,28 +175,41 @@ elif user_info['risk tolerance'] == 'Low':
 crypto_risk_allotment = i_amount * 0.7
 price_per_crypto = crypto_risk_allotment / len(len_crypto)
 
+
 print("\n")
 print("----------Order Book----------")
 
 # Print risk order book
-for ticker in len_crypto:
-    print(f"Purchase ${price_per_crypto} of {ticker}")
+num_orders = Counter(len_crypto)
+set_crypto = set(len_crypto)
 
+weight_calc = {}
+for ticker in set_crypto:
+    print(f"Purchase ${price_per_crypto * num_orders[ticker]:.2f} of {ticker}")
+    # Add to dictionary to calculate weights
+    weight_calc[ticker] = float(price_per_crypto * num_orders[ticker])
+
+print("\n")
 print(f"This should equal 70%, ${crypto_risk_allotment}, of your stated initial investment amount of {user_info['Investment Amount']}")
 print("\n")
 
 # Using BTC, ETH and LTC as a benchmark for the s&p we allot the last 30% to these cryptos
+# i = index
 snp_crypto = ['BTC', 'ETH', 'LTC']
-
 crypto_index_allotment = i_amount * 0.3
 price_per_crypto_i = crypto_index_allotment / len(snp_crypto)
 
+# for ticker in snp_crypto:
+#     weight_calc[ticker] += float(price_per_crypto_i)
+
+# print_weights = [f"{t}:{v}" for t, v in weight_calc.items()]
+# print(print_weights)
 
 # Print index order book
 for ticker in snp_crypto:
-    print(f"Purchase ${price_per_crypto_i} of {ticker}")
-
-print(f"This should equal 30%, ${crypto_index_allotment}, of your stated initial investment amount of {user_info['Investment Amount']}")
+    print(f"Purchase ${price_per_crypto_i:.2f} of {ticker}")
+print("\n")
+print(f"This should equal 30%, ${crypto_index_allotment:.2f}, of your stated initial investment amount of {user_info['Investment Amount']}")
 
 # Pull info for user's stock portfolio
 tickers = []
@@ -199,6 +217,7 @@ for ticker, shares in user_info['Stock Portfolio'].items():
     tickers.append(ticker)
 
 # Api env variables
+# For anyone running on their on computer be sure to change these env variable to reflect the names you use
 alpaca_api = "ALPACA_API_KEY_ENV"
 alpaca_secret_api = "ALPACA_SECRET_KEY_ENV"
 
@@ -206,18 +225,21 @@ alpaca_secret_api = "ALPACA_SECRET_KEY_ENV"
 alpaca_call = alpaca.Alpaca(tickers, '1D', 1, alpaca_api, alpaca_secret_api)
 stocks_df = alpaca_call.run()
 
-# Prints the last closing price of each stock in the portfolio
+print("\n")
+print("----------Stock Portfolio Value----------")
+# Set empty list and dictionary to 
 close_values = []
 stock_port = {}
+
+# Prints the last closing price of each stock in the portfolio
 for ticker in tickers:
     close = f"{ticker.upper()}_close"
-    stock_port[ticker] = [close]
+    stock_port[ticker] = stocks_df[close]
     close_v = stocks_df[close][-1]
     print(f"{ticker} closed at {close_v}")
     close_values.append(close_v)
-print("\n")
-print("----------Stock Portfolio Value----------")
 
+print("\n")
 # Multiply last closing price by share amount and store in list
 portfolio_value = []
 for value in close_values:
@@ -228,35 +250,76 @@ for value in close_values:
 # Sum the values in the list to get total portfolio value
 portfolio_value = sum(portfolio_value)
 
-print(f"The current value of your stock portfolio is ${portfolio_value}")
+print(f"The current value of your stock portfolio is ${portfolio_value:.2f}")
+print("\n")
 
 # Get CMC close
 cmc = crypto_market.cmc200(1)
 cmc.columns = ['CMC_close']
 
+cmc_dr = cmc['CMC_close'].pct_change().dropna()
+
+cmc_cum = (1 + cmc_dr).cumprod()
+
 # Get S&P 500 close
 sp500 = sp500_index.sp500(1)
 sp500.columns = ['SP500_close']
 
+sp500_dr = sp500['SP500_close'].pct_change().dropna()
+
+sp500_cum = (1 + sp500_dr).cumprod()
+
 # Concat dataframe of indexes
-index = pd.concat([sp500, cmc], axis=1)
-index.dropna(inplace=True)
+index_cm = pd.concat([sp500_cum, cmc_cum], axis=1)
+index_cm.dropna(inplace=True)
 
 # Plot of both indexes daily close
-index_overlay_plot = index.hvplot.line(title='CMC200 and S&P500 Overlayed')
+index_overlay_plot = index_cm.hvplot.line(title='CMC200 and S&P500 Daily Returns Overlayed')
 
 # Rolling mean of both indexes
-sp_cmc = index.rolling(window=30).mean().dropna()
+sp_cmc = index_cm.rolling(window=30).mean().dropna()
 
 # Plot of rolling 30 mean indexes
-sp_cmc.hvplot.line(title='CMC200 and S&P500 Overlayed - 30 Day')
+index_dr_30_plot = sp_cmc.hvplot.line(title='CMC200 and S&P500 Overlayed - 30 Day')
 
 # Aggregate average of indexes 30 day
-sp_cmc_avg = index.mean(axis=1)
+sp_cmc_avg = index_cm.mean(axis=1)
 sp_cmc_avg_30 = sp_cmc_avg.rolling(window=30).mean()
 
 # Aggregate plotted
 sp_cmc_avg_30_plot = sp_cmc_avg_30.hvplot.line(title='CMC200 and S&P500 Aggregate - 30 Day')
+sp_cmc_avg_plot = sp_cmc_avg.hvplot.line(title='CMC200 and S&P500 Aggregate')
 
+list_df = []
 for t, df in stock_port.items():
-    print(df.head())
+    df = pd.DataFrame(df)
+    list_df.append(df)
+    # print(df.head())
+
+for t, df in dictionary.items():
+    df = pd.DataFrame(df)
+    df = df[f"{t}USDT_Close"]
+    list_df.append(df)
+
+port_closes = pd.concat(list_df, axis=1, join='inner')
+
+port_daily_returns = port_closes.pct_change().dropna()
+
+port_cum_returns = (1 + port_daily_returns).cumprod()
+
+port_cum_30 = port_cum_returns.rolling(window=30).mean()
+combined_cum_returns = port_cum_returns.mean(axis=1)
+combined_cum_returns = combined_cum_returns.T
+combined_cum_returns.columns = ['Portfolio Cumulative Return - 30 Day']
+
+portfolio_plot = combined_cum_returns.hvplot(title="Total Portfolio Cumulative Returns")
+portfolio_plot_30 = combined_cum_returns.hvplot(title="Total Portfolio Cumulative Returns - 30 Day")
+
+
+portfolio_index_overlay_avg = portfolio_plot * sp_cmc_avg_plot
+portfolio_index_overlay = portfolio_plot * index_overlay_plot
+port_index_format_plot = portfolio_index_overlay_avg
+
+# montecarlo = mc.MCSimulation(port_cum_returns, weights="", num_simulation=1000, num_trading_days=252)
+
+hvplot.show(portfolio_index_overlay + portfolio_index_overlay_avg)
