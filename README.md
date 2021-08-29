@@ -24,7 +24,7 @@ You will need store the variables later in the program.**
 Lines 227-228 of main.py**
 
 [Alpaca API](main.py)
-```Python:
+```python:
 alpaca_api = "ALPACA_API_KEY_ENV"
 alpaca_secret_api = "ALPACA_SECRET_KEY_ENV"
 ```
@@ -44,7 +44,7 @@ pip install questionary
 Lines 28-29 of getbinance.py**
 
 [Binance API](data_retrieval/getbinance.py)
-```Python:
+```python:
 binance_api = os.getenv("BINANCE_API")
 binance_secret = os.getenv("BINANCE_SECRET")
 ```
@@ -55,7 +55,7 @@ binance_secret = os.getenv("BINANCE_SECRET")
 Second Cell of tweet_sentiment_analysis_crypto_final_draft.ipynb.py**
 
 [Tweepy File](data_retrieval/tweet_sentiment_analysis_crypto_final_draft.ipynb.py)
-```Python:
+```python:
 # create OAuthHandler object
 self.auth = OAuthHandler(twitter_credentials.consumer_key, twitter_credentials.consumer_secret)
 # set access token and secret
