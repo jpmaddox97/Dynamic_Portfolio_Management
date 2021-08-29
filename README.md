@@ -51,6 +51,7 @@ binance_secret = os.getenv("BINANCE_SECRET")
 
 ### Install Tweepy: [Tweepy](https://pypi.org/project/tweepy/)
 **You will need a Twitter API Key which you can apply for here:** [Twitter API](https://developer.twitter.com/en/products/twitter-api)
+
 **Change "twitter_credentials.consumer_key" and "twitter_credentials.consumer_secret" to your own personal binance_api env variables.
 Second Cell of tweet_sentiment_analysis_crypto_final_draft.ipynb.py**
 
