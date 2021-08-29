@@ -1,4 +1,4 @@
-![Portfolio Management Image](readme_images/Financial-Management.png)
+![Portfolio Management Image](readme_images/FInancial-Management.png)
 # Dynamic Portfolio Management
 
 >"Manage Risk, Cryptocurrency Recommendation, Portfolio Historical Returns"
@@ -16,12 +16,13 @@
 
 # Install Anaconda: [Anaconda](https://www.anaconda.com/)
 
-# Save an ENV file of your Alpaca and Binance public and secret keys in the same folder as the repository.
-# You will need store the variables later in the program.
+**Save an ENV file of your Alpaca and Binance public and secret keys in the same folder as the repository.
+You will need store the variables later in the program.**
 
 # Install Alpaca: [Alpaca SDK](https://alpaca.markets/docs/)
 **Change "ALPACA_API_KEY_ENV" and "ALPACA_SECRET_KEY_ENV" to your own personal alpaca_api env variables.
 Lines 227-228 of main.py**
+
 [Alpaca API](main.py)
 ```Python:
 alpaca_api = "ALPACA_API_KEY_ENV"
@@ -41,6 +42,7 @@ pip install questionary
 # Install Binance Python Client: [Binance](https://python-binance.readthedocs.io/en/latest/overview.html)
 **Change "BINANCE_API" and "BINANCE_SECRET" to your own personal binance_api env variables.
 Lines 28-29 of getbinance.py**
+
 [Binance API](data_retrieval/getbinance.py)
 ```Python:
 binance_api = os.getenv("BINANCE_API")
@@ -51,6 +53,7 @@ binance_secret = os.getenv("BINANCE_SECRET")
 # You will need a Twitter API Key which you can apply for here: [Twitter API](https://developer.twitter.com/en/products/twitter-api)
 **Change "twitter_credentials.consumer_key" and "twitter_credentials.consumer_secret" to your own personal binance_api env variables.
 Second Cell of tweet_sentiment_analysis_crypto_final_draft.ipynb.py**
+
 [Tweepy File](data_retrieval/tweet_sentiment_analysis_crypto_final_draft.ipynb.py)
 ```Python:
 # create OAuthHandler object
@@ -63,7 +66,7 @@ self.auth.set_access_token(twitter_credentials.access_token, twitter_credentials
 ```bash:
 pip install -U textblob
 ```
-**Using Conda Install (Anaconda)
+**Using Conda Install (Anaconda)**
 ```bash:
 conda install -c conda-forge textblob
 ```
@@ -72,7 +75,7 @@ conda install -c conda-forge textblob
 ```bash:
 pip install hvplot
 ```
-**Using Conda Install (Anaconda)
+**Using Conda Install (Anaconda)**
 ```bash:
 conda install -c pyviz hvplot
 ```
