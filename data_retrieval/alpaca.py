@@ -35,10 +35,10 @@ class Alpaca:
 
         load_dotenv()
 
-        if self.alpaca_api and self.alpaca_secret_key:
+        try:
             self.alpaca_api = os.getenv(self.alpaca_api)
             self.alpaca_secret_key = os.getenv(self.alpaca_secret_key)
-        else:
+        except:
             self.alpaca_api = os.getenv("ALPACA_API_KEY_ENV")
             self.alpaca_secret_key = os.getenv("ALPACA_SECRET_KEY_ENV")
 

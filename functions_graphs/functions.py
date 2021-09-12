@@ -19,6 +19,7 @@ class Functions():
         self.dataframe = dataframe
         self.market = market
         self.column_name = column_name
+        self.df_daily_returns = self.daily_returns()
 
     def daily_returns(self):
         # Make a daily returns column
@@ -32,22 +33,22 @@ class Functions():
         self.dataframe['cumulative_returns'] = (1 + self.daily_returns(self.dataframe)).cumprod()
         return self.dataframe
 
-    def standard_deviation(self):
+    def standard_deviation(self, df_daily_returns):
         # Calculate std for the dataframe
-        return self.dataframe['daily_returns'].std()
+        return df_daily_returns.std()
 
-    def annual_standard_deviation(self):
+    def annual_standard_deviation(self, df_daily_returns):
         # Calc annual std
-        return self.dataframe['daily_returns'] * np.sqrt(252)
+        return df_daily_returns * np.sqrt(252)
 
-    def monthly_standard_deviation(self):
+    def monthly_standard_deviation(self, df_daily_returns):
         # Calc monthly std
-        return self.dataframe['daily_returns'] * np.sqrt(12)
+        return df_daily_returns * np.sqrt(12)
 
-    def annualize_average_returns(self):
+    def annualize_average_returns(self, df_daily_returns):
         # Calc anual average means       
-        return self.dataframe['daily_returns'].mean() * 252
+        return df_daily_returns.mean() * 252
 
-    def sharpe_ratio(self):
+    def sharpe_ratio(self, df_daily_returns):
         # Calc sharpe ratio
-        return self.annualize_average_returns() / self.annual_standard_deviation()
+        return self.annualize_average_returns(df_daily_returns) / self.annual_standard_deviation(df_daily_returns)

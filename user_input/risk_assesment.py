@@ -33,8 +33,8 @@ def get_user_risk_tolerance_port():
         if cont == False:
             adding = False
 
-    user_dictionary = {"risk tolerance": risk_tolerance,
-                        "index": indexes,
+    user_dictionary = {"Risk Tolerance": risk_tolerance,
+                        "Index": indexes,
                         "Investment Goals": goals,
                         "Investment Amount": invest_amount,
                         "Stock Portfolio": stock_portfolio}
